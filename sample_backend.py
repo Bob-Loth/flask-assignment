@@ -67,13 +67,21 @@ def get_users():
       # 200 is the default code for a normal response
       return resp
    elif request.method == 'DELETE':
-      userToDelete = request.get_json()
-      try:
-         users['users_list'].remove(userToDelete)
-         resp = jsonify(success=True)
-      except ValueError:
+      search_id = request.args.get('id')
+      if search_id :
+         for user in users['users_list']:
+            if user['id'] == search_id:
+               users['users_list'].remove(user)
+               resp = jsonify(success=True)
+               return resp
          resp = jsonify(success=False)
-      return resp
+         resp.status_code = 404 #valid id field, just not one in db
+         return resp
+      else:
+         resp = jsonify(success=False)
+         resp.status_code = 400 #not deleting by 'id' field
+         return resp
+         
 @app.route('/users/<id>')
 def get_user(id):
    if id :
